@@ -10,7 +10,7 @@
 class FaceAnnotations {
 
 public:
-//    std::vector<int> symmetry_;
+    std::vector<int> symmetry_;
     std::vector<cv::Vec2i> connection_;
     std::vector<std::string> img_name_;
     std::vector<std::vector<cv::Point2f> > points_;

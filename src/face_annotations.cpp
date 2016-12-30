@@ -51,9 +51,9 @@ void FaceAnnotations::read(std::string muct)
 //        points_.push_back(points_mirror);
     }
 
-    //get the connection directly from points
+    //get connection index from file
     std::ifstream connection_file;
-    connection_file.open("./connection-test.txt");
+    connection_file.open("./connection.txt");
 
     while(!connection_file.eof())
     {
@@ -62,7 +62,6 @@ void FaceAnnotations::read(std::string muct)
         if(line == "")
             continue;
 
-        //get connection index from file
         char *ptr = new char[line.length() + 1];
         strcpy(ptr, line.c_str());
         char *p = strtok(ptr, " ");
@@ -70,6 +69,22 @@ void FaceAnnotations::read(std::string muct)
         p = strtok(NULL, " ");
         int y = atoi(p);
         connection_.push_back(cv::Vec2i(x, y));
+    }
+
+    //get symmetry index from file
+    std::ifstream symmetry_file;
+    symmetry_file.open("./symmetry.txt");
+
+    while(!symmetry_file.eof())
+    {
+        std::string line;
+        getline(symmetry_file, line);
+        if(line == "")
+            continue;
+
+        char *ptr = new char[line.length() + 1];
+        strcpy(ptr, line.c_str());
+        symmetry_.push_back(atoi(ptr));
     }
 }
 
@@ -145,16 +160,28 @@ void FaceAnnotations::show(int index)
 
     cv::Mat img = cv::imread(img_name_[index]);
 
-    for(int i = 0; i < points_[index].size(); i++)
-    {
-        cv::circle(img, points_[index][i], 1, cv::Scalar(0, 255, 0));
-        cv::putText(img, std::to_string(i), points_[index][i], cv::FONT_HERSHEY_TRIPLEX, 0.4, cv::Scalar(0, 0, 255));
-    }
+    //show the points and its relative index
+//    for(int i = 0; i < points_[index].size(); i++)
+//    {
+//        cv::circle(img, points_[index][i], 1, cv::Scalar(0, 255, 0));
+//        cv::putText(img, std::to_string(i), points_[index][i], cv::FONT_HERSHEY_TRIPLEX, 0.4, cv::Scalar(0, 0, 255));
+//    }
 
-    for(int i = 0; i < connection_.size(); i++)
-    {
-        cv::line(img, points_[index][connection_[i][0]], points_[index][connection_[i][1]],  cv::Scalar(0, 255, 0));
-    }
+    //show the connection between points
+//    for(int i = 0; i < connection_.size(); i++)
+//    {
+//        cv::line(img, points_[index][connection_[i][0]], points_[index][connection_[i][1]],  cv::Scalar(0, 255, 0));
+//    }
+
+    //show the symmetry connection for each point
+//    for(int i = 0; i < symmetry_.size(); i++)
+//    {
+//        cv::Mat img_copy;
+//        img.copyTo(img_copy);
+//        cv::line(img_copy, points_[index][i], points_[index][symmetry_[i]],  cv::Scalar(0, 255, 0));
+//        cv::imshow("test", img_copy);
+//        cv::waitKey(0);
+//    }
 
     cv::imshow("test", img);
     cv::waitKey(0);
