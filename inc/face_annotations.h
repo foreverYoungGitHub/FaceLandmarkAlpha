@@ -22,7 +22,7 @@ public:
 
 private:
     std::vector<cv::Point2f> get_data(std::string points_str);
-    std::vector<cv::Point2f> get_data(std::string points_str, int img_width);
+    std::vector<cv::Point2f> get_data(std::vector<cv::Point2f> points_org, int img_width);
 };
 
 

@@ -6,6 +6,43 @@
 
 void FaceAnnotations::read(std::string muct)
 {
+    //get connection index from file
+    std::ifstream connection_file;
+    connection_file.open("./connection.txt");
+
+    while(!connection_file.eof())
+    {
+        std::string line;
+        getline(connection_file, line);
+        if(line == "")
+            continue;
+
+        char *ptr = new char[line.length() + 1];
+        strcpy(ptr, line.c_str());
+        char *p = strtok(ptr, " ");
+        int x = atoi(p);
+        p = strtok(NULL, " ");
+        int y = atoi(p);
+        connection_.push_back(cv::Vec2i(x, y));
+    }
+
+    //get symmetry index from file
+    std::ifstream symmetry_file;
+    symmetry_file.open("./symmetry.txt");
+
+    while(!symmetry_file.eof())
+    {
+        std::string line;
+        getline(symmetry_file, line);
+        if(line == "")
+            continue;
+
+        char *ptr = new char[line.length() + 1];
+        strcpy(ptr, line.c_str());
+        symmetry_.push_back(atoi(ptr));
+    }
+
+    //get points from file
     std::ifstream point_file;
     point_file.open(muct + "muct-landmarks/muct76-opencv.csv");
 
@@ -50,42 +87,6 @@ void FaceAnnotations::read(std::string muct)
 //        std::vector<cv::Point2f> points_mirror = get_data(points_str, img.cols);
 //        points_.push_back(points_mirror);
     }
-
-    //get connection index from file
-    std::ifstream connection_file;
-    connection_file.open("./connection.txt");
-
-    while(!connection_file.eof())
-    {
-        std::string line;
-        getline(connection_file, line);
-        if(line == "")
-            continue;
-
-        char *ptr = new char[line.length() + 1];
-        strcpy(ptr, line.c_str());
-        char *p = strtok(ptr, " ");
-        int x = atoi(p);
-        p = strtok(NULL, " ");
-        int y = atoi(p);
-        connection_.push_back(cv::Vec2i(x, y));
-    }
-
-    //get symmetry index from file
-    std::ifstream symmetry_file;
-    symmetry_file.open("./symmetry.txt");
-
-    while(!symmetry_file.eof())
-    {
-        std::string line;
-        getline(symmetry_file, line);
-        if(line == "")
-            continue;
-
-        char *ptr = new char[line.length() + 1];
-        strcpy(ptr, line.c_str());
-        symmetry_.push_back(atoi(ptr));
-    }
 }
 
 std::vector<cv::Point2f> FaceAnnotations::get_data(std::string points_str)
@@ -115,29 +116,16 @@ std::vector<cv::Point2f> FaceAnnotations::get_data(std::string points_str)
     return points;
 }
 
-std::vector<cv::Point2f> FaceAnnotations::get_data(std::string points_str, int img_width)
+std::vector<cv::Point2f> FaceAnnotations::get_data(std::vector<cv::Point2f> points_org, int img_width)
 {
     //get the landmarks of the face
-    std::vector<cv::Point2f> points;
+    std::vector<cv::Point2f> points = points_org;
 
-    char *ptr = new char[points_str.length() + 1];
-    strcpy(ptr, points_str.c_str());
-    char *p = strtok(ptr, ",");
-
-    int x , y;
-    for(int index = 0; p != 0; index++)
+    for(int index = 0; index < points.size(); index++)
     {
         //mirror the points through (img_width - point.x)
-        if(index % 2 == 0)
-        {
-            x = img_width - atoi(p);
-        }
-        else
-        {
-            y = atoi(p);
-            points.push_back(cv::Point2f(x, y));
-        }
-        p = strtok(NULL, ",");
+        points[index].x = img_width - points_org[symmetry_[index]].x;
+        points[index].y = points_org[symmetry_[index]].y;
     }
 
     return points;
